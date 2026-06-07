@@ -23,7 +23,7 @@ OUT_DIR   = os.path.dirname(os.path.abspath(__file__))
 PAPER_DIR = os.path.join(ROOT, "paper_artifacts")
 DEVICE    = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-SIM_HORIZON = 168       # 7 gün steady-state convergence
+SIM_HORIZON = 168
 SEEDS       = [42, 123, 456]
 EPOCHS      = 80
 PATIENCE    = 15
@@ -109,12 +109,6 @@ def train_model(model_type, train_data, val_data, scaler, seed):
 
 
 def steady_state_simulate(model, init_seq_norm, constant_input_norm, horizon, scaler):
-    """
-    init_seq_norm        : [seq_len, 4] normalize başlangıç
-    constant_input_norm  : [4]          normalize sabit input vektörü
-    horizon              : adım sayısı
-    Returns: [horizon, 3] normalize predictions, then denormalize
-    """
     model.eval()
     seq = torch.FloatTensor(init_seq_norm).unsqueeze(0).to(DEVICE)
     const_in = torch.FloatTensor(constant_input_norm).unsqueeze(0).unsqueeze(0).to(DEVICE)
@@ -141,19 +135,16 @@ def run():
     test_norm  = sc.transform(test_data)
     val_split  = train_norm[-len(test_norm)//2:]
 
-    # Sabit input — test set ortalaması (real units)
     mean_input_real = test_data[:, :4].mean(axis=0)
     mean_input_norm = sc.transform(np.hstack([mean_input_real, [0,0,0]]).reshape(1,-1))[0, :4]
 
-    # Sabit DO için ASM2d steady-state ground truth (yaklaşık) hesabı yok — sadece convergence test
-    # Initial seq: rastgele test penceresi
     init_seq_norm = test_norm[0:SEQ_LEN, :4]
 
     print(f"  Sabit input (real): COD={mean_input_real[0]:.2f}, NH4={mean_input_real[1]:.2f}, "
           f"PO4={mean_input_real[2]:.2f}, DO={mean_input_real[3]:.2f}")
 
     records = []
-    trajectories = {}    # plotlama için
+    trajectories = {}
     for model_type in ["PG_LSTM", "Vanilla_LSTM"]:
         traj_per_seed = []
         for seed in SEEDS:
@@ -161,12 +152,10 @@ def run():
             model = train_model(model_type, train_norm[:-len(val_split)], val_split, sc, seed)
             traj = steady_state_simulate(model, init_seq_norm, mean_input_norm, SIM_HORIZON, sc)
             traj_per_seed.append(traj)
-            # Convergence metrik: son 24 saat std (steady → küçük)
             final_std = traj[-24:, :].std(axis=0)
             initial_val = traj[0]
             final_val   = traj[-1]
-            # ODE residual son 24 saatte — sabit influent array [24, 4] gerekli
-            raw_const = np.tile(mean_input_real[:4], (24, 1))  # [24, 4]: [KOI_in, NH4_in, PO4_in, DO]
+            raw_const = np.tile(mean_input_real[:4], (24, 1))
             try:
                 ode_final = compute_ode_residual_norm(traj[-24:], raw_const, dt=1.0, reduce='mean_l2')
             except Exception:
@@ -178,30 +167,27 @@ def run():
                 'Initial_COD': initial_val[0], 'ODE_res_final': ode_final,
             })
             print(f"    final_std (COD/NH4/PO4) = {final_std[0]:.3f} / {final_std[1]:.3f} / {final_std[2]:.3f}")
-        trajectories[model_type] = np.array(traj_per_seed)   # [n_seeds, horizon, 3]
+        trajectories[model_type] = np.array(traj_per_seed)
 
     df = pd.DataFrame(records)
     csv_out = os.path.join(OUT_DIR, "steady_state_results.csv")
     df.to_csv(csv_out, index=False)
     print(f"\n→ {csv_out}")
 
-    # Plot — 3 outputs trajectory
     fig, axes = plt.subplots(3, 1, figsize=(11, 10), sharex=True)
     out_names = ['COD Effluent (mg/L)', 'NH4 Effluent (mg-N/L)', 'PO4 Effluent (mg-P/L)']
     model_display = {"PG_LSTM": "PG-LSTM", "Vanilla_LSTM": "Vanilla LSTM"}
     t = np.arange(SIM_HORIZON)
     for i, ax in enumerate(axes):
         for mt, color in [("PG_LSTM", "#E63946"), ("Vanilla_LSTM", "#457B9D")]:
-            traj_arr = trajectories[mt]   # [n_seeds, horizon, 3]
+            traj_arr = trajectories[mt]
             mean_traj = traj_arr[:, :, i].mean(axis=0)
             std_traj  = traj_arr[:, :, i].std(axis=0)
             ax.plot(t, mean_traj, label=model_display[mt], linewidth=2, color=color)
             ax.fill_between(t, mean_traj - std_traj, mean_traj + std_traj, alpha=0.2, color=color)
-            # Bireysel seed trajektorileri ince çizgi (Gemini önerisi — band misleading)
             for s_idx in range(traj_arr.shape[0]):
                 ax.plot(t, traj_arr[s_idx, :, i], color=color, alpha=0.35, linewidth=0.8)
         ax.set_ylabel(out_names[i])
-        # Sıfır referans çizgisi (sadece PO4 için anlamlı)
         if i == 2:
             ax.axhline(0.0, color='red', ls='-.', lw=0.8, alpha=0.5, label='Physical bound')
         ax.legend(); ax.grid(True, alpha=0.3)
@@ -212,11 +198,11 @@ def run():
                   f'(Constant: COD={mean_input_real[0]:.0f}, NH4={mean_input_real[1]:.0f}, '
                   f'PO4={mean_input_real[2]:.0f}, DO={mean_input_real[3]:.1f}; thin lines = individual seeds, band = $\\pm$1 SD)')
     plt.tight_layout()
-    plt.rcParams['pdf.fonttype'] = 42  # embed fonts (Water Research §10.3)
+    plt.rcParams['pdf.fonttype'] = 42
     fig_out = os.path.join(PAPER_DIR, "fig_steady_state.pdf")
-    fig.savefig(fig_out, bbox_inches='tight')                       # vector (primary)
+    fig.savefig(fig_out, bbox_inches='tight')
     fig.savefig(os.path.join(PAPER_DIR, "fig_steady_state.png"),
-                dpi=600, bbox_inches='tight')                       # raster backup
+                dpi=600, bbox_inches='tight')
     plt.close(fig)
     print(f"-> {fig_out} (+ .png 600 dpi)")
 

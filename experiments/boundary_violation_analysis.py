@@ -114,7 +114,6 @@ def train_model(model_type, train_data, val_data, scaler, seed):
 
 
 def evaluate_boundary(model, test_data, scaler):
-    """Test seti üzerinde negatif tahmin frequency'sini ölç."""
     X_te, y_te = make_seqs(test_data)
     raw_te = X_te.copy()
     val_ld = torch.utils.data.DataLoader(
@@ -130,13 +129,13 @@ def evaluate_boundary(model, test_data, scaler):
     pn = np.concatenate(all_p)
     n = scaler.n_features_in_
     dp = np.zeros((len(pn), n)); dp[:, 4:7] = pn
-    pr = scaler.inverse_transform(dp)[:, 4:7]   # gerçek (mg/L)
+    pr = scaler.inverse_transform(dp)[:, 4:7]
 
     metrics = {'N_test': len(pr)}
     for i, name in enumerate(['COD', 'NH4', 'PO4']):
         col = pr[:, i]
         n_neg = int((col < 0).sum())
-        n_zero_neg = int((col < -0.01).sum())   # daha sıkı: belirgin negatif
+        n_zero_neg = int((col < -0.01).sum())
         metrics[f'{name}_neg_count']  = n_neg
         metrics[f'{name}_neg_pct']    = 100 * n_neg / len(col)
         metrics[f'{name}_strict_neg'] = n_zero_neg
@@ -173,7 +172,6 @@ def run():
     df.to_csv(csv_out, index=False)
     print(f"\n→ {csv_out}")
 
-    # Özet — model bazında ortalama
     summary = df.groupby('Model').agg({
         'COD_neg_pct': ['mean', 'std'],
         'NH4_neg_pct': ['mean', 'std'],
@@ -185,14 +183,12 @@ def run():
     print("\n=== Boundary Violation Summary ===")
     print(summary)
 
-    # ── Plot — bar chart ─────────────────────────────────────────────────────
     fig, axes = plt.subplots(1, 2, figsize=(13, 5))
     output_names = ['COD', 'NH4', 'PO4']
     models = ['PG_LSTM', 'Vanilla_LSTM', 'GRU']
     model_display = {'PG_LSTM': 'PG-LSTM', 'Vanilla_LSTM': 'Vanilla LSTM', 'GRU': 'GRU'}
     colors = {'PG_LSTM': '#E63946', 'Vanilla_LSTM': '#457B9D', 'GRU': '#F4A261'}
 
-    # Panel A: % negative predictions
     width = 0.25; x = np.arange(len(output_names))
     for j, mt in enumerate(models):
         vals = [df[df.Model == mt][f'{o}_neg_pct'].mean() for o in output_names]
@@ -204,10 +200,9 @@ def run():
     axes[0].set_title('A — Boundary Violation Frequency (raw output)')
     axes[0].legend(); axes[0].grid(True, alpha=0.3, axis='y')
 
-    # Panel B: most negative magnitude
     for j, mt in enumerate(models):
-        vals = [-df[df.Model == mt][f'{o}_min_pred'].min() for o in output_names]   # invert sign for plotting
-        vals = [max(v, 0.001) for v in vals]   # log-safe
+        vals = [-df[df.Model == mt][f'{o}_min_pred'].min() for o in output_names]
+        vals = [max(v, 0.001) for v in vals]
         axes[1].bar(x + (j-1)*width, vals, width, label=model_display[mt],
                      color=colors[mt], edgecolor='black', linewidth=0.5)
     axes[1].set_xticks(x); axes[1].set_xticklabels(output_names)
@@ -219,15 +214,14 @@ def run():
     fig.suptitle('Boundary Loss Effect: Physically Impossible Predictions Across Models',
                   fontsize=12)
     plt.tight_layout()
-    plt.rcParams['pdf.fonttype'] = 42  # embed fonts (Water Research §10.3)
+    plt.rcParams['pdf.fonttype'] = 42
     fig_out = os.path.join(PAPER_DIR, "fig_boundary_violation.pdf")
-    fig.savefig(fig_out, bbox_inches='tight')                       # vector (primary)
+    fig.savefig(fig_out, bbox_inches='tight')
     fig.savefig(os.path.join(PAPER_DIR, "fig_boundary_violation.png"),
-                dpi=600, bbox_inches='tight')                       # raster backup
+                dpi=600, bbox_inches='tight')
     plt.close(fig)
     print(f"-> {fig_out} (+ .png 600 dpi)")
 
-    # ── LaTeX tablo ──────────────────────────────────────────────────────────
     latex_lines = [
         r"\begin{table}[ht]",
         r"\centering",
