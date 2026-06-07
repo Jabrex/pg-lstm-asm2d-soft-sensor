@@ -1,5 +1,9 @@
 # PG-LSTM ASM2d Effluent Soft-Sensor Framework
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20585945.svg)](https://doi.org/10.5281/zenodo.20585945)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
+
 Physics-Guided LSTM (PG-LSTM) for wastewater effluent prediction on a synthetic
 ASM2d A²O benchmark. Companion code and data for the manuscript *"What
 Statistical Accuracy Misses: Physics-Guided LSTM Reduces Structural Boundary
@@ -80,7 +84,11 @@ influent statistics (`ood_perturbation_factors.json`). In result CSVs the
 ## Citation
 
 If you use this code, please cite the associated manuscript (details to follow
-upon publication).
+upon publication) and the archived release:
+
+> Uygur, M. S., Uygur, A., Alcı, M., Engin, E. Z. (2026). PG-LSTM ASM2d
+> Effluent Soft-Sensor Framework (v1.0.0). Zenodo.
+> https://doi.org/10.5281/zenodo.20585945
 
 ## License
 
