@@ -1,23 +1,4 @@
-"""
-Boundary Violation Frequency Analysis
-======================================
 
-Constant-influent test'te 2/3 Vanilla seed negatif PO4 üretti — fiziksel imkansız.
-Bu script: TEST SETİ üzerinde her modelin ne sıklıkla negatif tahmin yaptığını ölç.
-
-Test set boyunca:
-  - Negatif effluent prediction sayısı (per output: COD, NH4, PO4)
-  - Negatif fraction (% of timesteps)
-  - Magnitude statistics (en negatif değer)
-
-Modeller: PG_LSTM, Vanilla_LSTM, GRU
-Önceden eğitilmiş model ağırlıklarını yükle (cv_results.csv ile aynı setup).
-
-Çıktı:
-  experiments/boundary_violation_results.csv
-  paper_artifacts/fig_boundary_violation.png
-  paper_artifacts/table_boundary_violation.tex
-"""
 import sys, os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
