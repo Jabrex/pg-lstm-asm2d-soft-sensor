@@ -1,24 +1,4 @@
-"""
-Yeni Deney 4 — Constant-Influent Steady-State Test
-==================================================
 
-Gemini önerisi: shuffled data yerine sabit influent → steady-state recovery.
-
-Setup:
-  Sabit influent vector = test set ortalaması (KOI_in_mean, NH4_in_mean, PO4_in_mean, DO_mean)
-  Auto-regressive forward simulation 168 saat
-  PG-LSTM ve Vanilla LSTM karşılaştır
-  3 seed (3 farklı eğitilmiş model)
-
-Beklenen (Path B):
-  - PG-LSTM steady-state'a converge
-  - Vanilla LSTM drift edebilir (mekanistik kısıt yok)
-  - Final-state ODE residual: PG-LSTM < Vanilla
-
-Çıktı:
-  experiments/steady_state_results.csv
-  paper_artifacts/fig_steady_state.png
-"""
 import sys, os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
