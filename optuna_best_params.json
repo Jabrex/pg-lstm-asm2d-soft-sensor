@@ -1,0 +1,14 @@
+{
+  "hidden_dim": 96,
+  "num_layers": 1,
+  "fc_dim": 96,
+  "dropout": 0.1,
+  "lr": 0.001969411230560988,
+  "weight_decay": 0.000970940565416768,
+  "batch_size": 32,
+  "lambda_phys_max": 0.05,
+  "lambda_boundary": 0.03994058837058784,
+  "lambda_variance": 0.10238909963105292,
+  "noise_std": 0.05,
+  "best_val_loss": 0.001335873063739941
+}
