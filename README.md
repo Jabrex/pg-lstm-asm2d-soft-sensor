@@ -5,38 +5,78 @@
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 
 Physics-Guided LSTM (PG-LSTM) for wastewater effluent prediction on a synthetic
-ASM2d A²O benchmark. Companion code and data for the manuscript *"What
-Statistical Accuracy Misses: Physics-Guided LSTM Reduces Structural Boundary
-Violations in Wastewater Effluent Prediction."*
+ASM2d A²O benchmark. Companion code for the manuscript *"What Statistical
+Accuracy Misses: Physics-Guided LSTM Reduces Structural Boundary Violations in
+Wastewater Effluent Prediction."*
 
 The central finding: against an architecture-matched Vanilla LSTM and a GRU, the
 physics-guided loss buys **no** measurable accuracy (TOST equivalence), yet it
-eliminates negative-phosphate predictions and avoids an infeasible
-steady-state attractor that the unconstrained baselines fall into.
+eliminates negative-phosphate predictions and avoids an infeasible steady-state
+attractor that the unconstrained baselines fall into.
 
-## Repository structure
+This repository tracks **source code only**. The synthetic datasets, result
+tables, and figures are not stored here — every script regenerates them. The
+ASM2d simulator is seeded (`np.random.seed(42)`), so the regenerated data is
+identical run to run and the bundled trained model and scaler stay valid against
+it.
 
-```
-asm2d_ode_sim.py              Multi-zone A2O BDF solver (stiff ASM2d system)
-asm2d_pg_lstm.py              PG-LSTM architecture, composite loss, Optuna HPO
-physics_consistency.py        Directional process-consistency + boundary penalty
-cross_validation.py           Ten-fold temporal cross-validation driver
-run_baselines.py              Vanilla LSTM / GRU / Persistence references
-baselines/                    Baseline model definitions
-eval_ode_residual_quick.py    Boundary-violation + aggregated ODE-residual audit
-equivalence_tests.py          TOST, Wilcoxon, Diebold-Mariano (HAC) tests
-ablation_study.py             Loss-term ablation
-shap_analysis.py              SHAP + ALE interpretability
-experiments/                  Low-data, noise, horizon, boundary, steady-state
-asm2d_ode_sim_ood.py          Independent-realisation (OOD) simulator
-cross_validation_ood.py       OOD ten-fold protocol
-build_ood_table.py            OOD result tables
-generate_paper_artifacts.py   Reproduce paper tables and figures
-figures/                      The 13 figures used in the manuscript
-*.csv / *.json                Synthetic data, results, HPO config
-asm2d_pg_lstm_model.pth       Trained PG-LSTM weights
-asm2d_scaler.joblib           Fitted MinMax scaler
-```
+## Files
+
+**Data generation**
+
+| File | Purpose |
+|------|---------|
+| `asm2d_ode_sim.py` | Multi-zone A²O ASM2d simulator (stiff BDF solver); writes the synthetic dataset. |
+| `asm2d_ode_sim_ood.py` | Independent realisation: ±15 % kinetic perturbation and shifted influent. |
+| `ood_perturbation_factors.json` | Recorded OOD perturbation factors. |
+
+**Model and training**
+
+| File | Purpose |
+|------|---------|
+| `asm2d_pg_lstm.py` | PG-LSTM architecture, composite loss, data loading, Optuna HPO. |
+| `physics_consistency.py` | Directional process-consistency terms, boundary penalty, ODE residual. |
+| `optuna_best_params.json` | Tuned hyperparameters used for every run. |
+| `asm2d_pg_lstm_model.pth` | Trained PG-LSTM weights (valid against the seeded dataset). |
+| `asm2d_scaler.joblib` | Fitted MinMax scaler for the same dataset. |
+
+**Baselines**
+
+| File | Purpose |
+|------|---------|
+| `baselines/vanilla_lstm.py` | Architecture-matched LSTM, MSE loss only. |
+| `baselines/gru_model.py` | GRU reference. |
+| `baselines/pure_asm2d_baseline.py` | Mechanistic / persistence reference. |
+| `run_baselines.py` | Runs the baseline models. |
+
+**Evaluation and statistics**
+
+| File | Purpose |
+|------|---------|
+| `cross_validation.py` | Ten-fold temporal cross-validation across all models. |
+| `cross_validation_ood.py` | Same protocol on the independent realisation. |
+| `eval_ode_residual_quick.py` | Boundary-violation count and aggregated ASM2d ODE residual. |
+| `equivalence_tests.py` | TOST equivalence, Wilcoxon, Diebold–Mariano (HAC). |
+| `ablation_study.py` | Loss-term ablation. |
+
+**Experiments** (`experiments/`)
+
+| File | Purpose |
+|------|---------|
+| `low_data.py` | Training-fraction sweep. |
+| `noise_robustness.py` | Test-time input-noise sweep. |
+| `forecast_horizon.py` | Forecast-horizon experiment. |
+| `boundary_violation_analysis.py` | Three-seed boundary stress test. |
+| `constant_influent.py` | Constant-influent steady-state rollout. |
+
+**Interpretability and figures**
+
+| File | Purpose |
+|------|---------|
+| `shap_analysis.py` | SHAP feature importance, ALE and PDP maps. |
+| `generate_domain_of_utility_fig.py` | Domain-of-utility figure from the sweep results. |
+| `generate_paper_artifacts.py` | Rebuilds the manuscript tables and figures. |
+| `retrain_loss_curve.py` | Loss-curve figure from a faithful training run. |
 
 ## Installation
 
@@ -49,46 +89,43 @@ Python 3.10+ recommended. A CUDA-capable GPU is optional (CPU works).
 ## Reproducing the results
 
 ```bash
-# 1. (Optional) regenerate the synthetic ASM2d dataset
+# 1. Generate the synthetic datasets (seeded, deterministic)
 python asm2d_ode_sim.py
+python asm2d_ode_sim_ood.py
 
-# 2. Train PG-LSTM with the tuned hyperparameters
+# 2. Train PG-LSTM, or reuse the bundled asm2d_pg_lstm_model.pth
 python asm2d_pg_lstm.py
 
-# 3. Ten-fold cross-validation across all models
+# 3. Cross-validation, boundary/ODE audit, statistical tests
 python cross_validation.py
-
-# 4. Boundary-violation and ODE-residual audit
 python eval_ode_residual_quick.py
-
-# 5. Equivalence / difference tests
 python equivalence_tests.py
 
-# 6. Ablation, interpretability, OOD replication
+# 4. Ablation, interpretability, OOD replication
 python ablation_study.py
 python shap_analysis.py
 python cross_validation_ood.py
 
-# 7. Rebuild the paper figures and tables
+# 5. Figures and tables
 python generate_paper_artifacts.py
+python generate_domain_of_utility_fig.py
 ```
+
+Each script writes its own CSV results and PNG/PDF figures into the working
+directory. Those outputs are intentionally untracked, so you reproduce them
+locally rather than pulling pre-computed copies.
 
 ## Data
 
-Every dataset here is synthetic, generated by the multi-zone A²O ASM2d
-simulator (`asm2d_ode_sim.py`) at an isothermal 20 °C. The `_ood` files are an
-independent realisation with kinetic parameters perturbed by ±15 % and shifted
-influent statistics (`ood_perturbation_factors.json`). In result CSVs the
-`Model` column value `PG_LSTM` denotes the physics-guided model.
+All data is synthetic, generated by the multi-zone A²O ASM2d simulator at an
+isothermal 20 °C. The `_ood` variant is an independent realisation with kinetic
+parameters perturbed by ±15 % and shifted influent statistics. In the result
+CSVs the `Model` column value `PG_LSTM` denotes the physics-guided model.
 
 ## Citation
 
-If you use this code, please cite the associated manuscript (details to follow
-upon publication) and the archived release:
-
 > Uygur, M. S., Uygur, A., Alcı, M., Engin, E. Z. (2026). PG-LSTM ASM2d
-> Effluent Soft-Sensor Framework. Zenodo.
-> https://doi.org/10.5281/zenodo.20617806
+> Effluent Soft-Sensor Framework. Zenodo. https://doi.org/10.5281/zenodo.20617806
 
 ## License
 
