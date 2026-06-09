@@ -257,7 +257,7 @@ class PGLossFunction:
         return total_loss, loss_data, loss_physics, loss_boundary, loss_variance
 
 
-def load_and_prepare_data(csv_path, seq_len=48, train_ratio=0.8, batch_size=64, verbose=True):
+def load_and_prepare_data(csv_path, seq_len=24, train_ratio=0.8, batch_size=64, verbose=True):
     if verbose:
         print(f"\n{'='*65}")
         print(f"  Veri Yükleme: {csv_path}")

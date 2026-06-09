@@ -29,7 +29,7 @@ def train_vanilla():
 
     train_loader, test_loader, scaler, _, _ = load_and_prepare_data(
         csv_path, 
-        seq_len=48,
+        seq_len=24,
         batch_size=best_params['batch_size'], 
         verbose=True
     )

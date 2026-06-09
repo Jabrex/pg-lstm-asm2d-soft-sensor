@@ -27,7 +27,7 @@ FRACTIONS = [0.10, 0.25, 0.50, 0.75, 1.00]
 SEEDS     = [42, 123, 456]
 EPOCHS    = 100
 PATIENCE  = 20
-SEQ_LEN   = 48
+SEQ_LEN = 24
 TEST_FRAC = 0.30
 
 with open(HP_PATH) as f: HP = json.load(f)

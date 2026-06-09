@@ -27,7 +27,7 @@ def load_ood_data():
 def run_cv_ood():
     print(f"OOD CV baslatildi | Cihaz: {DEVICE} | CSV: {os.path.basename(OOD_CSV)}")
     data_raw = load_ood_data()
-    X, y, raw = make_sequences(data_raw, seq_len=48)
+    X, y, raw = make_sequences(data_raw, seq_len=24)
 
     MODEL_TYPES = ["PG_LSTM", "Vanilla_LSTM", "GRU", "Persistence"]
     records = []

@@ -141,7 +141,7 @@ def run_ablation():
 
     csv_path = os.path.join(OUTPUT_DIR, "synthetic_asm2d_physics.csv")
     train_loader, test_loader, scaler, _, _ = load_and_prepare_data(
-        csv_path, seq_len=48, batch_size=HP['batch_size'], verbose=False
+        csv_path, seq_len=24, batch_size=HP['batch_size'], verbose=False
     )
 
     records = []

@@ -34,7 +34,7 @@ def load_raw_data():
     return df[all_cols].values.astype(np.float32), df
 
 
-def make_sequences(data, seq_len=48):
+def make_sequences(data, seq_len=24):
     X, y, raw = [], [], []
     for i in range(len(data) - seq_len):
         X.append(data[i:i+seq_len, :4])
@@ -43,7 +43,7 @@ def make_sequences(data, seq_len=48):
     return np.array(X), np.array(y), np.array(raw)
 
 
-def fold_loaders(X, y, raw, fold_idx, n_folds, batch_size, gap=48):
+def fold_loaders(X, y, raw, fold_idx, n_folds, batch_size, gap=24):
     from torch.utils.data import TensorDataset, DataLoader
     fold_size = len(X) // n_folds
     val_start = fold_idx * fold_size
@@ -249,7 +249,7 @@ def bootstrap_ci(values, n_boot=1000, ci=0.95):
 def run_cv():
     print(f"Faz 6 — {N_FOLDS}-fold CV başlatıldı | Cihaz: {DEVICE}")
     data_raw, _ = load_raw_data()
-    X, y, raw = make_sequences(data_raw, seq_len=48)
+    X, y, raw = make_sequences(data_raw, seq_len=24)
 
     MODEL_TYPES = ["PG_LSTM", "Vanilla_LSTM", "GRU", "Persistence"]
     records = []

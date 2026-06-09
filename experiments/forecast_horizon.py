@@ -26,7 +26,7 @@ HORIZONS  = [1, 6, 24, 72, 168]
 SEEDS     = [42, 123, 456]
 EPOCHS    = 80
 PATIENCE  = 15
-SEQ_LEN   = 48
+SEQ_LEN = 24
 
 with open(HP_PATH) as f: HP = json.load(f)
 

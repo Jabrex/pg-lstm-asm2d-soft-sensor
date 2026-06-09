@@ -11,7 +11,7 @@ from physics_consistency import compute_ode_residual_norm
 
 DEVICE   = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 CSV_PATH = os.path.join(os.path.dirname(__file__), "synthetic_asm2d_physics.csv")
-SEQ_LEN  = 48
+SEQ_LEN = 24
 TRAIN_RATIO = 0.8
 
 print(f"Device: {DEVICE}")

@@ -27,7 +27,7 @@ NOISE_LEVELS = [0.0, 0.05, 0.10, 0.20]
 SEEDS        = [42, 123, 456]
 EPOCHS       = 80
 PATIENCE     = 15
-SEQ_LEN      = 48
+SEQ_LEN = 24
 TEST_FRAC    = 0.30
 
 with open(HP_PATH) as f: HP = json.load(f)

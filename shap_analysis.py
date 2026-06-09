@@ -42,7 +42,7 @@ def load_model_and_data():
         print(f"[UYARI] {MODEL_PATH} bulunamadi. Once asm2d_pg_lstm.py calistirin.")
     model.eval()
     train_loader, test_loader, scaler, _, _ = load_and_prepare_data(
-        CSV_PATH, seq_len=48, batch_size=HP['batch_size'], verbose=False)
+        CSV_PATH, seq_len=24, batch_size=HP['batch_size'], verbose=False)
     return model, train_loader, test_loader, scaler
 
 

@@ -48,7 +48,7 @@ def train_gru():
     if not os.path.exists(csv_path): csv_path = "synthetic_asm2d_physics.csv"
 
     train_loader, test_loader, scaler, _, _ = load_and_prepare_data(
-        csv_path, seq_len=48,
+        csv_path, seq_len=24,
         batch_size=best_params['batch_size'], verbose=False
     )
 
