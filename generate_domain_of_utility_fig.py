@@ -149,8 +149,8 @@ def main():
                      loc='upper right', fontsize=9)
 
     fig.suptitle("Domain of Utility for PG-LSTM in ASM2d Wastewater Modeling\n"
-                  "Equivalent predictive accuracy (TOST $p<0.05$, see Tab.~\\ref{tab:tost}) "
-                  "with consistently lower ASM2d ODE residual across all tested regimes",
+                  "Equivalent predictive accuracy (TOST $p<0.05$) with a "
+                  "regime-dependent ASM2d ODE-residual advantage",
                   fontsize=12, y=1.02)
     plt.tight_layout()
     plt.rcParams['pdf.fonttype'] = 42  # embed fonts (Water Research §10.3)
@@ -164,7 +164,8 @@ def main():
     # ── Özet tablo (manuscript için) ─────────────────────────────────────────
     print("\n=== PG-LSTM Advantage Factor Summary ===")
     for label, adv in zip(cond_labels, advantages):
-        print(f"  {label.replace(chr(10), ' '):<14}  {adv:.2f}×")
+        safe = label.replace(chr(10), ' ').replace('σ', 'sigma')
+        print(f"  {safe:<16}  {adv:.2f}x")
 
 
 if __name__ == "__main__":
