@@ -141,6 +141,8 @@ def main():
                            bar.get_height() * 1.08,
                            f'{val:.1f}×',
                            ha='center', va='bottom', fontsize=9, fontweight='bold')
+    _finite = [a for a in advantages if np.isfinite(a) and a > 0]
+    ax_ratio.set_ylim(0.8, max(_finite) * 2.2)
     legend_elems = [
         Patch(facecolor='#2A9D8F', label='Low-data regime'),
         Patch(facecolor='#F4A261', label='Noise regime'),

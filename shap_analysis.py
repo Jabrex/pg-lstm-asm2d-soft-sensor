@@ -87,6 +87,7 @@ def run_shap_analysis(model, train_loader, test_loader):
             ax.text(bar.get_width() + max(mean_abs)*0.01,
                     bar.get_y() + bar.get_height()/2,
                     f'{val:.4f}', va='center', fontsize=9)
+        ax.set_xlim(0, max(mean_abs) * 1.25)
         ax.set_xlabel('Mean |SHAP Value|')
         ax.set_title(f'SHAP Feature Importance — {tlabel}')
         plt.tight_layout()
