@@ -1,6 +1,6 @@
 # PG-LSTM ASM2d Effluent Soft-Sensor Framework
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20617806.svg)](https://doi.org/10.5281/zenodo.20617806)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20618344.svg)](https://doi.org/10.5281/zenodo.20618344)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 
@@ -125,7 +125,7 @@ CSVs the `Model` column value `PG_LSTM` denotes the physics-guided model.
 ## Citation
 
 > Uygur, M. S., Uygur, A., Alcı, M., Engin, E. Z. (2026). PG-LSTM ASM2d
-> Effluent Soft-Sensor Framework. Zenodo. https://doi.org/10.5281/zenodo.20617806
+> Effluent Soft-Sensor Framework. Zenodo. https://doi.org/10.5281/zenodo.20618344
 
 ## License
 
